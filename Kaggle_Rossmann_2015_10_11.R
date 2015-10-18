@@ -95,11 +95,7 @@ summary(train$year) #OK
   # 2     2014 7025.404   6877.401
   # 3     2015 7088.127   7088.127
   
-#### TODO ####
-  # porovnani jednotlivych Jan-Jul rocne
-  # porovnani Aug+Sep
-  
-  # clustry na store typy?
+
   
 #### SNIPPETS ####
   cat("combine store and dayOfWeek\n")
@@ -115,4 +111,39 @@ summary(train$year) #OK
   
   write_csv(submission, "submission.csv")
 
-####
+  
+#### Snippets muj ####
+  JanJul$newCat<-as.factor(paste(JanJul$Store, JanJul$DayOfWeek, JanJul$Promo, sep="-"))
+  test$newCat <- as.factor(paste(test$Store, test$DayOfWeek, test$Promo, sep="-"))
+  
+  means<-tapply(JanJul$Sales, JanJul$newCat, mean)
+  
+  predA <- means[as.character(test$newCat)]
+  
+  #vynasobit vsechny trzby nejakou konstantou
+  
+      JJ2013<-6702.493
+      JJ2014<-6877.401
+      JJ2015<-7088.127
+      
+      konst<-JJ2015/((JJ2013+JJ2014)/2)
+      konst #1.043915
+  
+      pred<-predA*konst
+      
+  test$Sales2<-pred
+  
+  #prepsat open=0 na sales = 0
+  test$Sales2[with(test, Open == "0")] <- 0
+  
+  #chybejici udaje?
+  
+  submission <- data.frame(Id=test$Id, Sales=test$Sales2)
+  
+  write.csv(submission, "submission_2015_10_18_01.csv")
+  
+#### TODO ####
+  
+  # clustry na store typy?
+  # konstanta sledujici pomer prazdnin v celem roce
+  
