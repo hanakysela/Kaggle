@@ -81,7 +81,7 @@ summary(train$year) #OK
     ggtitle("Average sales by year")
 
  
-  ## compare only Jan-Jul data
+## compare only Jan-Jul data
     # Jan-Jul maji nizsi nez prumerny Sales
   JanJul<-train[ which(train$month == "01" | train$month == "02" | train$month == "03" | train$month == "04" | train$month == "05"  | train$month == "06"  | train$month == "07"), ]
   
