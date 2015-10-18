@@ -141,6 +141,7 @@ summary(train$year) #OK
   submission <- data.frame(Id=test$Id, Sales=test$Sales2)
   
   write.csv(submission, "submission_2015_10_18_01.csv")
+
   
 #### TODO ####
   
