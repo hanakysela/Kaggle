@@ -21,7 +21,7 @@ source("Kaggle_Rossmann_basic.R")
       #   2015 7088.127   7088.127
       #   all  6955.514   6889.573
 
-# MEDIANS
+# MEDIANS 
       #   year    whole   JanJul    AugSep
       #   2013    6218    6147      5960.5
       #   2014    6427    6301      6186.0
@@ -30,17 +30,25 @@ source("Kaggle_Rossmann_basic.R")
       
 #### Submission_2015_10_18_01 ####
 # 1. shluknuti podle kategorii
-    JanJul$newCat<-as.factor(paste(JanJul$Store, JanJul$DayOfWeek, JanJul$Promo, sep="-"))
+    # JanJul$newCat<-as.factor(paste(JanJul$Store, JanJul$DayOfWeek, JanJul$Promo, sep="-"))
+    train$newCat<-as.factor(paste(train$Store, train$DayOfWeek, train$Promo, sep="-"))
     test$newCat <- as.factor(paste(test$Store, test$DayOfWeek, test$Promo, sep="-"))
 
-# 2. spocitani prumeru/medianu?    
-    means<-tapply(JanJul$Sales, JanJul$newCat, mean)
-    predA <- means[as.character(test$newCat)]
+# 2. spocitani prumeru/medianu? JanJul vs cely rok
+    #means<-tapply(JanJul$Sales, JanJul$newCat, mean)
+    medians<-tapply(train$Sales, train$newCat, median)
+    predA <- medians[as.character(test$newCat)]
 
 # 3. vynasobit vsechny trzby nejakou konstantou 
+    #0.98         0.13954   (stary model v excelu )
     #1.0          0.14184 sub/test = nasobit mene nez1
     #1.001446365  0.14211 sub9
     #1.043915     0.15633
+    
+    #sub11  0.14066 cely rok, mean, zadna konstanta
+    #sub12  0.13888 cely rok, median, zadna konstanta
+    
+    
 
     JJ2013<-6702.493
     JJ2014<-6877.401
@@ -50,8 +58,9 @@ source("Kaggle_Rossmann_basic.R")
     AS2014<-6735.430
     
     #konst<-JJ2015/((JJ2013+JJ2014)/2)
-     konst #1.001446365
-    
+     
+    konst #1.001446365
+    konst<- 0.98
     pred<-predA*konst
     
     test$Sales2<-pred
