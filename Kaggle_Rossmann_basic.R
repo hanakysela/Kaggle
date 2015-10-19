@@ -15,8 +15,8 @@ library("ggplot2")
   train<-read.csv("train.csv")
   test<-read.csv("test.csv")
   store<-read.csv("store.csv")
-  str(train)
-  str(test)
+  #str(train)
+  #str(test)
 
 ## see what they are - change numbers to factors
   train$Store<-as.factor(train$Store)
@@ -51,8 +51,8 @@ library("ggplot2")
   
   
 #### Are some data missing? ####
-summary(train$StateHoliday) #OK
-summary(train$DayOfWeek) #OK
-summary(train$Open) #OK
-summary(test$Open) #11 NA's
-summary(train$year) #OK
+  #   summary(train$StateHoliday) #OK
+  #   summary(train$DayOfWeek) #OK
+  #   summary(train$Open) #OK
+  #   summary(test$Open) #11 NA's
+  #   summary(train$year) #OK
