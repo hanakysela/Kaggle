@@ -56,7 +56,3 @@ write_csv(submission, "submission.csv")
 
 # clustry na store typy?
 # konstanta sledujici pomer prazdnin v celem roce (JunJul : AugSep)
-<<<<<<< HEAD
-mean vs median()
-=======
->>>>>>> 2104802fc608358ceb1195b48a4344799137de82
