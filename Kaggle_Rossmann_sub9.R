@@ -37,14 +37,14 @@ source("Kaggle_Rossmann_basic.R")
 #### Submission_2015_10_18_01 ####
 
 # 1. shluknuti podle kategorii
-    # JanJul$newCat<-as.factor(paste(JanJul$Store, JanJul$DayOfWeek, JanJul$Promo, sep="-"))
-    train$newCat<-as.factor(paste(train$Store, train$DayOfWeek,train$Promo, sep="-"))
+    JanJul$newCat<-as.factor(paste(JanJul$Store, JanJul$DayOfWeek, JanJul$Promo, sep="-"))
+    #train$newCat<-as.factor(paste(train$Store, train$DayOfWeek,train$Promo, sep="-"))
     test$newCat <- as.factor(paste(test$Store, test$DayOfWeek, test$Promo, sep="-"))
 
 # 2. spocitani prumeru/medianu? JanJul vs cely rok
-    #medians<-tapply(JanJul$Sales, JanJul$newCat, median)
-    medians<-tapply(train$Sales, train$newCat, median)
-    predA <- medians[as.character(test$newCat)]
+    means<-tapply(JanJul$Sales, JanJul$newCat, mean)
+    #medians<-tapply(train$Sales, train$newCat, median)
+    predA <- means[as.character(test$newCat)]
 
 # 3. vynasobit vsechny trzby nejakou konstantou 
     #0.98         0.13954   (stary model v excelu )
@@ -53,7 +53,7 @@ source("Kaggle_Rossmann_basic.R")
     #1.043915     0.15633
     
     
-    konst<- 0.985
+    konst<- 0.975
     pred<-predA*konst
     test$Sales2<-pred
 
@@ -68,13 +68,21 @@ write.csv(submission, "submission_test.csv", row.names=FALSE)
 #### poznamky a Kaggle scores ####
 
 #sub11   0.14066  cely rok  mean    zadna konstanta
-#sub13   0.14184  JanJul    mean    zadna konstanta
+
+#JanJul mean
+  #sub28  0.14694 JanJul    mean    1.02  
+  #sub13  0.14184 JanJul    mean    1.00  @
+  #sub29  0.13954 JanJul    mean    0.98
+  #sub31  0.13942 JanJul    mean    0.975 ###
+  #sub31  0.13949 JanJul    mean    0.97
+  #sub30  0.14018 JanJul    mean    0.96
+
 
 #JanJul median
   #sub15  0.14377 JanJul    median  1,02
-  #sub14  0.14075 JanJul    median  1,00
+  #sub14  0.14075 JanJul    median  1,00    @
   #sub20  0.14043 JanJul    median  0,995
-  #sub18  0.14029 JanJul    median  0,99    #
+  #sub18  0.14029 JanJul    median  0,99    ###
   #sub21  0.14032 JanJul    median  0,985
   #sub16  0.14054 JanJul    median  0.98
   #sub19  0.14151 JanJul    median  0.97
@@ -82,19 +90,19 @@ write.csv(submission, "submission_test.csv", row.names=FALSE)
 
 #cely rok median
   #sub23  0.14197   cely rok    median  1,02
-  #sub12  0.13888   cely rok    median  1.00
-  #sub26  0.13841   cely rok    median  0.99  #
+  #sub12  0.13888   cely rok    median  1.00  @
+  #sub26  0.13841   cely rok    median  0.99  ###
   #sub27  0.13844   cely rok    median  0,985
   #sub24  0.13866   cely rok    median  0.98
   #sub25  0.14130   cely rok    median  0.96
 
 
 #Complete average
-#sub22  0.13950 average 
-#sub11   0.14066
-#sub12   0.13888
-#sub13   0.14184
-#sub14   0.14075
+  #sub22  0.13950 average 
+    #sub11   0.14066
+    #sub12   0.13888
+    #sub13   0.14184
+    #sub14   0.14075
 
 
 
