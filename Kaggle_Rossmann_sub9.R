@@ -37,12 +37,13 @@ source("Kaggle_Rossmann_basic.R")
 #### Submission_2015_10_18_01 ####
 
 # 1. shluknuti podle kategorii
-    JanJul$newCat<-as.factor(paste(JanJul$Store, JanJul$DayOfWeek, JanJul$Promo, sep="-"))
-    #train$newCat<-as.factor(paste(train$Store, train$DayOfWeek,train$Promo, sep="-"))
+    #JanJul$newCat<-as.factor(paste(JanJul$Store, JanJul$DayOfWeek, JanJul$Promo, sep="-"))
+    train$newCat<-as.factor(paste(train$Store, train$DayOfWeek,train$Promo, sep="-"))
     test$newCat <- as.factor(paste(test$Store, test$DayOfWeek, test$Promo, sep="-"))
 
 # 2. spocitani prumeru/medianu? JanJul vs cely rok
-    means<-tapply(JanJul$Sales, JanJul$newCat, mean)
+    #means<-tapply(JanJul$Sales, JanJul$newCat, mean)
+    means<-tapply(train$Sales, train$newCat, mean)
     #medians<-tapply(train$Sales, train$newCat, median)
     predA <- means[as.character(test$newCat)]
 
@@ -53,7 +54,7 @@ source("Kaggle_Rossmann_basic.R")
     #1.043915     0.15633
     
     
-    konst<- 0.975
+    konst<- 0.97
     pred<-predA*konst
     test$Sales2<-pred
 
@@ -67,8 +68,15 @@ write.csv(submission, "submission_test.csv", row.names=FALSE)
 
 #### poznamky a Kaggle scores ####
 
-#sub11   0.14066  cely rok  mean    zadna konstanta
 
+#Cely rok mean
+  #sub33  0.14717 cely rok  mean    1.02
+  #sub11  0.14066 cely rok  mean    1.00 @
+  #sub34  0.13693 cely rok  mean    0.98
+  #sub37  0.13619 cely rok  mean    0.97  ### ###
+  #sub35  0.13623 cely rok  mean    0.96
+  #sub36  0.13860 cely rok  mean    0.94
+  
 #JanJul mean
   #sub28  0.14694 JanJul    mean    1.02  
   #sub13  0.14184 JanJul    mean    1.00  @
@@ -104,20 +112,6 @@ write.csv(submission, "submission_test.csv", row.names=FALSE)
     #sub13   0.14184
     #sub14   0.14075
 
-
-
-# Means
-JJ2013<-6702.493
-JJ2014<-6877.401
-JJ2015<-7088.127
-
-AS2013<-6483.755
-AS2014<-6735.430
-
-#Medians
-JJ2013<-6147
-JJ2014<-6301
-JJ2015<-6530
-
-AS2013<-5960.5
-AS2014<-6186.0
+# vyradit outliery?
+# vzit v potaz neco dalsiho (sortiment? promo2?)
+# skutecne predikce?

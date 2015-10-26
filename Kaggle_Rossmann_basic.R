@@ -31,6 +31,9 @@ library("ggplot2")
   test$Promo<-as.factor(test$Promo)
   test$SchoolHoliday<-as.factor(test$SchoolHoliday)
 
+# in test file replace missing open values!
+  test$Open[is.na(test$Open)]<-"1"
+  
 
 ## manage date format (adds year and month column)
   train$Date<-as.Date(as.character(train$Date))
@@ -44,8 +47,8 @@ library("ggplot2")
 ## add store info to either train and test
   train<-merge(train, store)
   test<-merge(test, store)
-
-
+ 
+ 
 # looking at only stores that were open in the train set
   train <- train[ which(train$Open== "1"),]
   
