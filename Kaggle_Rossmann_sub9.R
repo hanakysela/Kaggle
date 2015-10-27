@@ -54,7 +54,7 @@ source("Kaggle_Rossmann_basic.R")
     #1.043915     0.15633
     
     
-    konst<- 0.97
+    konst<- 0.965
     pred<-predA*konst
     test$Sales2<-pred
 
@@ -73,7 +73,9 @@ write.csv(submission, "submission_test.csv", row.names=FALSE)
   #sub33  0.14717 cely rok  mean    1.02
   #sub11  0.14066 cely rok  mean    1.00 @
   #sub34  0.13693 cely rok  mean    0.98
-  #sub37  0.13619 cely rok  mean    0.97  ### ###
+  #sub38  0.13647 cely rok  mean    0.975
+  #sub37  0.13619 cely rok  mean    0.97
+  #sub39  0.13611 cely rok  mean    0.975 ### ###
   #sub35  0.13623 cely rok  mean    0.96
   #sub36  0.13860 cely rok  mean    0.94
   
@@ -111,6 +113,20 @@ write.csv(submission, "submission_test.csv", row.names=FALSE)
     #sub12   0.13888
     #sub13   0.14184
     #sub14   0.14075
+
+#Average of the best
+  #sub40  0.13793
+    #sub39  0.13611 cely rok  mean    0.975
+    #sub31  0.13942 JanJul    mean    0.975
+    #sub18  0.14029 JanJul    median  0,99
+    #sub26  0.13841 cely rok  median  0.99  
+
+#average of the best means
+  #sub41  0.13741
+    #sub39  0.13611 cely rok  mean    0.975
+    #sub31  0.13942 JanJul    mean    0.975
+    
+
 
 # vyradit outliery?
 # vzit v potaz neco dalsiho (sortiment? promo2?)
