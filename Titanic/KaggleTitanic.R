@@ -27,9 +27,8 @@
       # rattle        
       # rpart.plot
       # RColorBrewer
-    
-  
-#### 2. Organize everything ####
+
+  #### 2. Organize everything ####
     
   ## WHAT COMPUTER AM I WORKING FROM?
     
@@ -116,18 +115,21 @@
       summary(test_01$Child)
       summary(train$Child)
   
-  train$Child[((is.na(train$Child)) & (train$SibSp > 2))] <- "Adult" 
-  train$Child[(is.na(train$Child))] <- "nevim"
-  
-  df$y[is.na(df$y)] = mean(df$y, na.rm=TRUE)
-  test_01$Child[is.na(test_01$Child)] <- "nevim"
-  
+ 
   train_knowage<-train[complete.cases(train[ ,5:6]),] #I know age
   train_dontknowage <- train[(train$Child)== "NA", ] # NA in Child column
   train_dontknowage$Child[train_dontknowage$SibSp <4] <- "Adult"
-  train_dontknowage$Child[train_dontknowage$SibSp >5] <- "Children"
-  
+  train_dontknowage$Child[train_dontknowage$SibSp >3] <- "Children"
   train_03<-rbind(train_knowage, train_dontknowage)
+  
+  
+  test_knowage<-test[complete.cases(test[ ,5:6]),] #I know age
+  test_dontknowage <- test[(test$Child)== "NA", ] # NA in Child column
+  test_dontknowage$Child[test_dontknowage$SibSp <4] <- "Adult"
+  test_dontknowage$Child[test_dontknowage$SibSp >3] <- "Children"
+  test_03<-rbind(test_knowage, test_dontknowage)
+  
+  
 #---------nahore je ta myslenka - preklasifikovat trees podle tohoto noveho train_03 datasetu.
   # Child je doplneno, tak by se mohl tree lepe ucit.
   
@@ -148,6 +150,19 @@
    # All adults except when SibSp>3,5, then Children
   
   
+ # Child-Age adjusted model
+  ACH_fit_01 <- rpart(Survived ~ Pclass + Sex + Age + SibSp, data=train_03, method="class")
+  ACH_fit_02 <- rpart(Survived ~ Pclass + Sex, data=train_03, method="class")
+  # ACH_fit_03 <- rpart(Survived ~ Pclass + Sex + Age, data=train_03, method="class")
+  # ACH_fit_04 <- rpart(Survived ~ Pclass + Sex + Child, data=train_03, method="class")
+  # ACH_fit_05 <- rpart(Survived ~ Pclass + Sex + Child + SibSp, data=train_03, method="class")
+  # ACH_fit_06 <- rpart(Survived ~ Pclass + Sex + Child + Fare, data=train_03, method="class")
+  ACH_fit_07 <- rpart(Survived ~ Pclass + Sex + Child + Fare + SibSp + Parch, data=train_03, method="class")
+  # ACH_fit_08 <- rpart(Survived ~ Pclass + Sex + Fare, data=train_03, method="class")
+  # ACH_fit_09 <- rpart(Survived ~ Pclass + Sex + Fare + Age, data=train_03, method="class")
+  ACH_fit_10 <- rpart(Survived ~ Pclass + Sex + Age + Fare + SibSp + Parch, data=train_03, method="class")
+  
+  
 #### Plotting trees ####
   fancyRpartPlot(fit_01) # nice tree
   fancyRpartPlot(fit_02)
@@ -166,6 +181,16 @@
   fancyRpartPlot(CHfit_05)
   fancyRpartPlot(CHfit_06)
   fancyRpartPlot(CHfit_07)
+  fancyRpartPlot(ACH_fit_01)
+  fancyRpartPlot(ACH_fit_02)
+  fancyRpartPlot(ACH_fit_03)
+  fancyRpartPlot(ACH_fit_04)
+  fancyRpartPlot(ACH_fit_05)
+  fancyRpartPlot(ACH_fit_06)
+  fancyRpartPlot(ACH_fit_07)
+  fancyRpartPlot(ACH_fit_08)
+  fancyRpartPlot(ACH_fit_09)
+  fancyRpartPlot(ACH_fit_10)
   
   
   
@@ -181,9 +206,14 @@
   # Prediction_07(Survived ~ Pclass + Sex + Child + Fare + SibSp + Parch) ->  0.79426 ###
   # Prediction_10(Survived ~ Pclass + Sex + Age + Fare + SibSp + Parch) ->    0.79426 ###
   
+  # ACH_Prediction_01(Survived ~ Pclass + Sex + Age + SibSp) ->               0.56459
+  # ACH_Prediction_07(Survived ~ Pclass + Sex + Child + Fare + SibSp + Parch) 0.55981
+  # ACH_Prediction_10(Survived ~ Pclass + Sex + Age + Fare + SibSp + Parch) ->0.56459  
+  # ACH_Prediction_02(Survived ~ Pclass + Sex)    ->                          0.58373
 
+#NECO JE SPATNE, PO ODLADENI NE CHILD GROUP VYCHAZI HUR I MODEL ZALOZENY NA PCLASS A SEX
   
 #### write to the submission file ####
-  Prediction_10<- predict(fit_10, test, type = "class")
-  submit <- data.frame(PassengerId = test$PassengerId, Survived = Prediction_10)
-  write.csv(submit, file = "prediction_10.csv", row.names = FALSE)
+  ACH_Prediction_02<- predict(ACH_fit_02, test, type = "class")
+  submit <- data.frame(PassengerId = test_03$PassengerId, Survived = ACH_Prediction_02)
+  write.csv(submit, file = "ACH_Prediction_02.csv", row.names = FALSE)
