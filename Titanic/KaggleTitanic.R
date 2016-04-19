@@ -251,12 +251,19 @@
 #NECO JE SPATNE, PO ODLADENI NA CHILD GROUP VYCHAZI HUR I MODEL ZALOZENY NA PCLASS A SEX
   
 #### write to the submission file ####
+
   prediction_x2<- predict(fit_02, test, type = "class")
   submit <- data.frame(PassengerId = test$PassengerId, Survived = prediction_x2)
   write.csv(submit, file = "prediction_x2.csv", row.names = FALSE)
 
   
 #### COMMENTS ####
+
+  Age_Prediction_02<- predict(age_fit_02, test, type = "class")
+  submit <- data.frame(PassengerId = test_age$PassengerId, Survived = Age_Prediction_02)
+  write.csv(submit, file = "Age_Prediction_02.csv", row.names = FALSE)
+  
+
 prediction_10 <- read.csv("prediction_10.csv")
 Age_Prediction_02 <- read.csv("Age_Prediction_02.csv")
 
