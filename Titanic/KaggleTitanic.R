@@ -16,19 +16,11 @@
 
 #### 1. packages ####
   
-      packages <- c("RCurl", "rpart", "rattle", "rpart.plot", "RColorBrewer")
-      
-      if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
-        install.packages(setdiff(packages, rownames(installed.packages())))  
-      }
-      
-      # RCurl         for reading data from Github
-      # rpart         for  tree
-      # rattle        
-      # rpart.plot
-      # RColorBrewer
+  if (!require("pacman")) install.packages("pacman")
+  pacman::p_load(RCurl, rpart, rattle, rpart.plot, RColorBrewer)
+  
 
-  #### 2. Organize everything ####
+#### 2. Organize everything ####
     
   ## WHAT COMPUTER AM I WORKING FROM?
     
@@ -55,6 +47,9 @@
       test$Pclass <-as.factor(test$Pclass)
     
     
+      
+
+      
 ##### 3. Modifications ####
       
   ## Grouping Ages into "Child" variable => 3 levels only
@@ -93,12 +88,14 @@
       train$Child[train$Age < 18] <- "Children"
       train$Child[train$Age < 7] <- "Small"
       train$Child <-as.factor(train$Child)
+        a<-train$Child
       
       test$Child <- "NA"
       test$Child[test$Age < 81] <- "Adult"
       test$Child[test$Age < 18] <- "Children"
       test$Child[test$Age < 7] <- "Small"
       test$Child <- as.factor(test$Child)
+        b<-test$Child
       
       test_01 <- test
       test_01$Survived <- "NA"
@@ -142,15 +139,16 @@
   train_dontknowage$Child[train_dontknowage$SibSp <4] <- "Adult"
   train_dontknowage$Child[train_dontknowage$SibSp >3] <- "Children"
   train_age<-rbind(train_knowage, train_dontknowage)
-  
+  train_age<-train_age[order(train_age$PassengerId),]
+ 
   
   test_knowage<-test[complete.cases(test[ ,5:6]),] #I know age
   test_dontknowage <- test[(test$Child)== "NA", ] # NA in Child column
   test_dontknowage$Child[test_dontknowage$SibSp <4] <- "Adult"
   test_dontknowage$Child[test_dontknowage$SibSp >3] <- "Children"
   test_age<-rbind(test_knowage, test_dontknowage)
-  
-  
+  test_age<-test_age[order(test_age$PassengerId),]
+   
 #---------nahore je ta myslenka - preklasifikovat trees podle tohoto noveho train_age datasetu.
   # Child je doplneno, tak by se mohl tree lepe ucit.
   
@@ -231,45 +229,77 @@
   
 #### KAGGLE SCORES ####
   # Prediction_02(Survived ~ Pclass + Sex)    ->                              0.76555
-  # Prediction_08(Survived ~ Pclass + Sex + Fare) ->                          0.78947 ## (should have been 0,77990)
+  # Prediction_08(Survived ~ Pclass + Sex + Fare) ->                          0.78947 
   # Prediction_03(Survived ~ Pclass + Sex + Age ->                            0.73684
   # Prediction_04(Survived ~ Pclass + Sex + Child) ->                         0.75598
   # Prediction_01(Survived ~ Pclass + Sex + Age + SibSp) ->                   0.75598 
   # Prediction_05(Survived ~ Pclass + Sex + Child + SibSp) ->                 0.75120
-  # Prediction_09(Survived ~ Pclass + Sex + Age + Fare) ->                    0.78469 #
+  # Prediction_09(Survived ~ Pclass + Sex + Age + Fare) ->                    0.78469 
   # Prediction_06(Survived ~ Pclass + Sex + Child + Fare) ->                  0.78469 #
-  # Prediction_07(Survived ~ Pclass + Sex + Child + Fare + SibSp + Parch) ->  0.79426 ###
-  # Prediction_10(Survived ~ Pclass + Sex + Age + Fare + SibSp + Parch) ->    0.79426 ###
+  # Prediction_07(Survived ~ Pclass + Sex + Child + Fare + SibSp + Parch) ->  0.79426 #
+  # Prediction_10(Survived ~ Pclass + Sex + Age + Fare + SibSp + Parch) ->    0.79426 
   
-  # ACH_Prediction_01(Survived ~ Pclass + Sex + Age + SibSp) ->               0.56459
-  # ACH_Prediction_07(Survived ~ Pclass + Sex + Child + Fare + SibSp + Parch) 0.55981
-  # ACH_Prediction_10(Survived ~ Pclass + Sex + Age + Fare + SibSp + Parch) ->0.56459  
-  # ACH_Prediction_02(Survived ~ Pclass + Sex)    ->                          0.58373
+      # ACH_Prediction_01(Survived ~ Pclass + Sex + Age + SibSp) ->               0.56459
+      # ACH_Prediction_07(Survived ~ Pclass + Sex + Child + Fare + SibSp + Parch) 0.55981
+      # ACH_Prediction_10(Survived ~ Pclass + Sex + Age + Fare + SibSp + Parch) ->0.56459  
+      # ACH_Prediction_02(Survived ~ Pclass + Sex)    ->                          0.58373
+      
+  # Age_Prediction_02(Survived ~ Pclass + Sex) ->                             0.76555
+  # Age_Prediction_08(Survived ~ Pclass + Sex + Fare) ->                      0.78947
+  # Age_Prediction_06(Survived ~ Pclass + Sex + Child + Fare) ->              0.78469    # 
+  # Age_Prediction_07(Survived ~ Pclass + Sex + Child + Fare + SibSp + Parch)->0.79426  #
   
-  # Age_Prediction_02<- Prediction_02(Survived ~ Pclass + Sex) ->             0.58373
-
-#NECO JE SPATNE, PO ODLADENI NA CHILD GROUP VYCHAZI HUR I MODEL ZALOZENY NA PCLASS A SEX
+  # Age2_Prediciton_07(Survived ~ Pclass + Sex + Child + Fare + SibSp + Parch-> 0.79904 ####
+  # Age2_Prediction_06(Survived ~ Pclass + Sex + Child + Fare) ->             0.77990 !!
+  # age2_Prediction_10(Survived ~ Pclass + Sex + Age + Fare + SibSp + Parch) ->0.79426  #
+  
   
 #### write to the submission file ####
 
-  prediction_x2<- predict(fit_02, test, type = "class")
-  submit <- data.frame(PassengerId = test$PassengerId, Survived = prediction_x2)
-  write.csv(submit, file = "prediction_x2.csv", row.names = FALSE)
+  
+
+#### MODEL 3 - only 2 categories of age
+  train$Child <- "NA"
+  train$Child[train$Age < 81] <- "Adult"
+  train$Child[train$Age < 15] <- "Children"
+  train$Child <-as.factor(train$Child)
+ 
+  test$Child <- "NA"
+  test$Child[test$Age < 81] <- "Adult"
+  test$Child[test$Age < 15] <- "Children"
+  test$Child <- as.factor(test$Child)
+  b<-test$Child
+  
+  
+  train_knowage<-train[complete.cases(train[ ,5:6]),] #I know age
+  train_dontknowage <- train[(train$Child)== "NA", ] # NA in Child column
+  train_dontknowage$Child[train_dontknowage$SibSp <4] <- "Adult"
+  train_dontknowage$Child[train_dontknowage$SibSp >3] <- "Children"
+  train_age<-rbind(train_knowage, train_dontknowage)
+  train_age<-train_age[order(train_age$PassengerId),]
+  
+  
+  test_knowage<-test[complete.cases(test[ ,5:6]),] #I know age
+  test_dontknowage <- test[(test$Child)== "NA", ] # NA in Child column
+  test_dontknowage$Child[test_dontknowage$SibSp <4] <- "Adult"
+  test_dontknowage$Child[test_dontknowage$SibSp >3] <- "Children"
+  test_age<-rbind(test_knowage, test_dontknowage)
+  test_age<-test_age[order(test_age$PassengerId),]
+  
+  age2_fit_06 <- rpart(Survived ~ Pclass + Sex + Child + Fare, data=train_age, method="class")
+  age2_fit_07 <- rpart(Survived ~ Pclass + Sex + Child + Fare + SibSp + Parch, data=train_age, method="class")
+  age2_fit_10 <- rpart(Survived ~ Pclass + Sex + Age + Fare + SibSp + Parch, data=train, method="class")
 
   
 #### COMMENTS ####
 
-  Age_Prediction_02<- predict(age_fit_02, test, type = "class")
-  submit <- data.frame(PassengerId = test_age$PassengerId, Survived = Age_Prediction_02)
-  write.csv(submit, file = "Age_Prediction_02.csv", row.names = FALSE)
+  Age2_Prediction_10<- predict(age2_fit_10, test_age, type = "class")
+  submit <- data.frame(PassengerId = test_age$PassengerId, Survived = Age2_Prediction_10)
+  write.csv(submit, file = "Age2_Prediction_10.csv", row.names = FALSE)
+  
+  Prediction_07<-read.csv("prediction_07.csv")
+  Age_Prediction_07<-read.csv("Age_Prediction_07.csv")
+  Age_Prediction_10<-read.csv("Age")
+  pred_age<-cbind(Prediction_07, Age_Prediction_07$Survived)
+  test_07<-cbind(test_age, Prediction_07$Survived, Pre)
 
-prediction_10 <- read.csv("prediction_10.csv")
-Age_Prediction_02 <- read.csv("Age_Prediction_02.csv")
-
-prediction_10$Survived<-as.factor(prediction_10$Survived)
-Age_Prediction_02$Survived <- as.factor(Age_Prediction_02$Survived)
-summary(prediction_10)
-summary(Age_Prediction_02)
-
-summary(prediction_10$Survived)
-summary(Age_Prediction_02$Survived)
