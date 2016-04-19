@@ -213,6 +213,7 @@
   fancyRpartPlot(ACH_fit_08)
   fancyRpartPlot(ACH_fit_09)
   fancyRpartPlot(ACH_fit_10)
+  fancyRpartPlot(age2_fit_06, cex=0.65)
   
   
   
@@ -249,16 +250,23 @@
   # Age_Prediction_06(Survived ~ Pclass + Sex + Child + Fare) ->              0.78469    # 
   # Age_Prediction_07(Survived ~ Pclass + Sex + Child + Fare + SibSp + Parch)->0.79426  #
   
-  # Age2_Prediciton_07(Survived ~ Pclass + Sex + Child + Fare + SibSp + Parch-> 0.79904 ####
+  
   # Age2_Prediction_06(Survived ~ Pclass + Sex + Child + Fare) ->             0.77990 !!
+  # Age2_Prediciton_07(Survived ~ Pclass + Sex + Child + Fare + SibSp + Parch-> 0.79904 ####
   # age2_Prediction_10(Survived ~ Pclass + Sex + Age + Fare + SibSp + Parch) ->0.79426  #
+  
+  
+  # age2f25_fit_06(Survived ~ Pclass + Sex + Child + Fare2, data=train_age, method="class")                 0.77990
+  # age2f25_fit_07(Survived ~ Pclass + Sex + Child + Fare2 + SibSp + Parch, data=train_age, method="class") 0.78947
+  # age2f25_fit_10(Survived ~ Pclass + Sex + Age + Fare2 + SibSp + Parch, data=train_age, method="class")
+  
   
   
 #### write to the submission file ####
 
   
 
-#### MODEL 3 - only 2 categories of age
+#### MODEL 3 - only 2 categories of age ####
   train$Child <- "NA"
   train$Child[train$Age < 81] <- "Adult"
   train$Child[train$Age < 15] <- "Children"
@@ -288,8 +296,21 @@
   
   age2_fit_06 <- rpart(Survived ~ Pclass + Sex + Child + Fare, data=train_age, method="class")
   age2_fit_07 <- rpart(Survived ~ Pclass + Sex + Child + Fare + SibSp + Parch, data=train_age, method="class")
-  age2_fit_10 <- rpart(Survived ~ Pclass + Sex + Age + Fare + SibSp + Parch, data=train, method="class")
+  age2_fit_10 <- rpart(Survived ~ Pclass + Sex + Age + Fare + SibSp + Parch, data=train_age, method="class")
 
+#### MODEL 4 (builds on model 3) fare as factor ####
+  
+  train_age$Fare2 <- "expensive"
+  train_age$Fare2[train$Fare < 25] <- "cheap"
+  train_age$Fare2<-as.factor(train_age$Fare2)
+  test_age$Fare2 <- "expensive"
+  test_age$Fare2[test$Fare < 25] <- "cheap"
+  test_age$Fare2<-as.factor(test_age$Fare2)
+  
+  age2f25_fit_06 <- rpart(Survived ~ Pclass + Sex + Child + Fare2, data=train_age, method="class")
+  age2f25_fit_07 <- rpart(Survived ~ Pclass + Sex + Child + Fare2 + SibSp + Parch, data=train_age, method="class")
+  age2f25_fit_10 <- rpart(Survived ~ Pclass + Sex + Age + Fare2 + SibSp + Parch, data=train_age, method="class")
+  
   
 #### COMMENTS ####
 
@@ -297,9 +318,4 @@
   submit <- data.frame(PassengerId = test_age$PassengerId, Survived = Age2_Prediction_10)
   write.csv(submit, file = "Age2_Prediction_10.csv", row.names = FALSE)
   
-  Prediction_07<-read.csv("prediction_07.csv")
-  Age_Prediction_07<-read.csv("Age_Prediction_07.csv")
-  Age_Prediction_10<-read.csv("Age")
-  pred_age<-cbind(Prediction_07, Age_Prediction_07$Survived)
-  test_07<-cbind(test_age, Prediction_07$Survived, Pre)
-
+ 
