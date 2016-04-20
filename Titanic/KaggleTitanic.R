@@ -17,7 +17,7 @@
 #### 1. packages ####
   
   if (!require("pacman")) install.packages("pacman")
-  pacman::p_load(RCurl, rpart, rattle, rpart.plot, RColorBrewer)
+  pacman::p_load(RCurl, rpart, rattle, rpart.plot, RColorBrewer, party)
   
 
 #### 2. Organize everything ####
@@ -215,6 +215,11 @@
   fancyRpartPlot(ACH_fit_10)
   fancyRpartPlot(age2_fit_06, cex=0.65)
   
+  fancyRpartPlot(age2t_fit_06)
+  fancyRpartPlot(age2t_fit_07)
+  fancyRpartPlot(age2t_fit_10)
+
+ 
   
   
   age_fit_01 <- rpart(Survived ~ Pclass + Sex + Age + SibSp, data=train_age, method="class")
@@ -256,10 +261,18 @@
   # age2_Prediction_10(Survived ~ Pclass + Sex + Age + Fare + SibSp + Parch) ->0.79426  #
   
   
-  # age2f25_fit_06(Survived ~ Pclass + Sex + Child + Fare2, data=train_age, method="class")                 0.77990
-  # age2f25_fit_07(Survived ~ Pclass + Sex + Child + Fare2 + SibSp + Parch, data=train_age, method="class") 0.78947
-  # age2f25_fit_10(Survived ~ Pclass + Sex + Age + Fare2 + SibSp + Parch, data=train_age, method="class")
+  # age2f25_fit_06(Survived ~ Pclass + Sex + Child + Fare2,                   0.77990
+  # age2f25_fit_07(Survived ~ Pclass + Sex + Child + Fare2 + SibSp + Parch    0.78947
+  # age2f25_fit_10(Survived ~ Pclass + Sex + Age + Fare2 + SibSp + Parch,     0.77990
   
+  # combining fare into levels by 25 does not improve anything
+  
+  
+  # age2t_fit_06 <- rpart(Survived ~ Pclass + Sex + Child + Fare + Title                  0.79426
+  # age2t_fit_07 <- rpart(Survived ~ Pclass + Sex + Child + Fare + SibSp + Parch + Title  0.79426
+  # age2t_fit_10 <- rpart(Survived ~ Pclass + Sex + Age + Fare + SibSp + Parch + Title    0.80383
+  
+
   
   
 #### write to the submission file ####
@@ -298,7 +311,7 @@
   age2_fit_07 <- rpart(Survived ~ Pclass + Sex + Child + Fare + SibSp + Parch, data=train_age, method="class")
   age2_fit_10 <- rpart(Survived ~ Pclass + Sex + Age + Fare + SibSp + Parch, data=train_age, method="class")
 
-#### MODEL 4 (builds on model 3) fare as factor ####
+#### MODEL 4 (builds on model 3) fare as factor - not an improvement though ####
   
   train_age$Fare2 <- "expensive"
   train_age$Fare2[train$Fare < 25] <- "cheap"
@@ -310,12 +323,48 @@
   age2f25_fit_06 <- rpart(Survived ~ Pclass + Sex + Child + Fare2, data=train_age, method="class")
   age2f25_fit_07 <- rpart(Survived ~ Pclass + Sex + Child + Fare2 + SibSp + Parch, data=train_age, method="class")
   age2f25_fit_10 <- rpart(Survived ~ Pclass + Sex + Age + Fare2 + SibSp + Parch, data=train_age, method="class")
+
+#### MODEL 5 (builds on model 3) extracting titles
+  train_age$Name <-as.character(train_age$Name)
+  train_age$Title <- sapply(train_age$Name, FUN=function(x) {strsplit(x, split='[,.]')[[1]][2]})
+  train_age$Title <- sub(' ', '', train_age$Title)
+  train_age$Title[train_age$Title %in% c('Mme', 'Mlle')] <- 'Mlle'
+  train_age$Title[train_age$Title %in% c('Capt', 'Don', 'Major', 'Sir')] <- 'Sir'
+  train_age$Title[train_age$Title %in% c('Dona', 'Lady', 'the Countess', 'Jonkheer')] <- 'Lady'
+  train_age$Title <- factor(train_age$Title)
+  
+  test_age$Name <-as.character(test_age$Name)
+  test_age$Title <- sapply(test_age$Name, FUN=function(x) {strsplit(x, split='[,.]')[[1]][2]})
+  test_age$Title <- sub(' ', '', test_age$Title)
+  test_age$Title[test_age$Title %in% c('Mme', 'Mlle')] <- 'Mlle'
+  test_age$Title[test_age$Title %in% c('Capt', 'Don', 'Major', 'Sir')] <- 'Sir'
+  test_age$Title[test_age$Title %in% c('Dona', 'Lady', 'the Countess', 'Jonkheer')] <- 'Lady'
+  test_age$Title <- factor(test_age$Title)
+  
+  
+  
+  age2t_fit_06 <- rpart(Survived ~ Pclass + Sex + Child + Fare + Title, data=train_age, method="class")
+  age2t_fit_07 <- rpart(Survived ~ Pclass + Sex + Child + Fare + SibSp + Parch + Title, data=train_age, method="class")
+  age2t_fit_10 <- rpart(Survived ~ Pclass + Sex + Age + Fare + SibSp + Parch + Title, data=train_age, method="class")
+  
+
+#### MODEL 6 - RANDOM FOREST BASED ON DATA FROM MODEL 5 ####
+  
+  ## NEFUNGUJE ####
+  
+  # ===========================================================
+  # origos:set.seed(415)
+  fit <- cforest(as.factor(Survived) ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked + Title + FamilySize + FamilyID,
+                 data = train, controls=cforest_unbiased(ntree=2000, mtry=3))
+  
+  Prediction <- predict(fit, test, OOB=TRUE, type = "response")
+  
   
   
 #### COMMENTS ####
 
-  Age2_Prediction_10<- predict(age2_fit_10, test_age, type = "class")
-  submit <- data.frame(PassengerId = test_age$PassengerId, Survived = Age2_Prediction_10)
-  write.csv(submit, file = "Age2_Prediction_10.csv", row.names = FALSE)
+  Age2t_Prediction_07<- predict(age2t_fit_07, test_age, type = "class")
+  submit <- data.frame(PassengerId = test_age$PassengerId, Survived = Age2t_Prediction_07)
+  write.csv(submit, file = "Age2t_Prediction_07.csv", row.names = FALSE)
   
  
